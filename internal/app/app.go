@@ -36,14 +36,14 @@ func SetUpRoutes(router *gin.Engine) {
 	{
 		// api.GET("/", func(ctx *gin.Context) { ctx.JSON(200, gin.H{"msg": ""}) })
 		router.POST("/login", handlers.LoginHandler)
-		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 		routes.AllRoutes(api)
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
 	}
 
 }
 
 // @BasePath /api/v1
-
 // PingExample godoc
 // @Summary ping example
 // @Schemes
@@ -56,6 +56,7 @@ func SetUpRoutes(router *gin.Engine) {
 func Helloworld(g *gin.Context) {
 	g.JSON(http.StatusOK, "helloworld")
 }
+
 func initializeGin() *gin.Engine {
 	router := gin.New()
 	router.Use(middleware.GetZapGinConfig())

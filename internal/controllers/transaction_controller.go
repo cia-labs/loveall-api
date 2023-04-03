@@ -28,6 +28,15 @@ func NewTransactionController(db *gorm.DB) *TransactionController {
 //		c.JSON(200, tcSubs)
 //	}
 
+// GetAllTransaction godoc
+// @Summary Get all transactions
+// @Description Get all transactions available
+// @Tags transactions
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 400
+// @Router /transactions [get]
 func (tc *TransactionController) GetAllTransaction(c *gin.Context) {
 	page, err := strconv.Atoi(c.Query("page"))
 	if err != nil {
@@ -63,7 +72,16 @@ func (tc *TransactionController) GetAllTransaction(c *gin.Context) {
 	})
 }
 
-// GetTransaction returns a transaction by ID
+// GetTransaction godoc
+// @Summary Get a specific transaction
+// @Description Get a specific transaction by ID
+// @Tags transactions
+// @Accept json
+// @Produce json
+// @Param id path int true "Transaction ID"
+// @Success 200
+// @Failure 400
+// @Router /transactions/{id} [get]
 func (tc *TransactionController) GetTransaction(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -81,7 +99,15 @@ func (tc *TransactionController) GetTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, transaction)
 }
 
-// CreateTransaction creates a new transaction
+// CreateTransaction godoc
+// @Summary Create a new transaction
+// @Description Create a new transaction with the provided details
+// @Tags transactions
+// @Accept json
+// @Produce json
+// @Success 201
+// @Failure 400
+// @Router /transactions [post]
 func (tc *TransactionController) CreateTransaction(c *gin.Context) {
 	var transaction models.Transaction
 	err := c.ShouldBindJSON(&transaction)
@@ -99,7 +125,16 @@ func (tc *TransactionController) CreateTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, transaction)
 }
 
-// UpdateTransaction updates an existing transaction by ID
+// UpdateTransaction godoc
+// @Summary Update an existing transaction
+// @Description Update a transaction with a specific ID
+// @Tags transaction
+// @Accept json
+// @Produce json
+// @Param id path int true "Transaction ID"
+// @Success 200
+// @Failure 400
+// @Router /transactions/{id} [put]
 func (tc *TransactionController) UpdateTransaction(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -130,7 +165,16 @@ func (tc *TransactionController) UpdateTransaction(c *gin.Context) {
 	c.JSON(http.StatusOK, transaction)
 }
 
-// DeleteTransaction deletes a transaction by ID
+// DeleteTransaction godoc
+// @Summary Delete a transaction
+// @Description Delete a transaction with a specific ID
+// @Tags transaction
+// @Accept json
+// @Produce json
+// @Param id path int true "Transaction ID"
+// @Success 204 ""
+// @Failure 400
+// @Router /transactions/{id} [delete]
 func (tc *TransactionController) DeleteTransaction(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

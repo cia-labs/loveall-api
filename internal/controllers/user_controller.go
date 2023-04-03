@@ -29,6 +29,16 @@ func NewUserController(db *gorm.DB) *UserController {
 // 	c.JSON(200, users)
 // }
 
+// User resource
+// @BasePath /api/v1
+// GetAllUsers returns a list of all users
+// @Summary Get all users
+// @Description Returns a list of all users in the system
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.User
+// @Router /users [get]
 func (uc *UserController) GetAllUsers(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
@@ -66,6 +76,15 @@ func (uc *UserController) GetAllUsers(c *gin.Context) {
 	})
 }
 
+// GetUser returns a single user by ID
+// @Summary Get user by ID
+// @Description Returns a single user by ID
+// @Tags Users
+// @Param id path int true "User ID"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.User
+// @Router /users/{id} [get]
 func (uc *UserController) GetUser(c *gin.Context) {
 	id := c.Param("id")
 	var user models.User
@@ -78,6 +97,15 @@ func (uc *UserController) GetUser(c *gin.Context) {
 	c.JSON(200, user)
 }
 
+// CreateUser creates a new user
+// @Summary Create a new user
+// @Description Creates a new user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body models.User true "User data"
+// @Success 201 {object} models.User
+// @Router /users [post]
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.BindJSON(&user); err != nil {
@@ -102,6 +130,16 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 	c.JSON(201, user)
 }
 
+// UpdateUser updates an existing user by ID
+// @Summary Update user by ID
+// @Description Updates an existing user by ID
+// @Tags Users
+// @Param id path int true "User ID"
+// @Accept json
+// @Produce json
+// @Param user body models.User true "Updated user data"
+// @Success 200 {object} models.User
+// @Router /users/{id} [put]
 func (uc *UserController) UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 	var user models.User

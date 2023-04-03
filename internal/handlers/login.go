@@ -20,6 +20,17 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
+// Login godoc
+// @Summary Authenticate user and create a session
+// @Description Authenticate a user and create a session
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Param email body string true "Email"
+// @Param password body string true "Password"
+// @Success 200 {object} handlers.LoginResponse
+// @Failure 401
+// @Router /login [post]
 func LoginHandler(c *gin.Context) {
 
 	var req LoginRequest

@@ -27,6 +27,16 @@ func NewCardSubscriptionController(db *gorm.DB) *CardSubscriptionController {
 //		}
 //		c.JSON(200, cardSubs)
 //	}
+
+// GetAllCardSubscriptions godoc
+// @Summary Get all card subscriptions
+// @Description Get all card subscriptions available
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 400
+// @Router /subscriptions [get]
 func (csc *CardSubscriptionController) GetAllCardSubscriptions(c *gin.Context) {
 	page, err := strconv.Atoi(c.Query("page"))
 	if err != nil {
@@ -62,6 +72,16 @@ func (csc *CardSubscriptionController) GetAllCardSubscriptions(c *gin.Context) {
 	})
 }
 
+// GetCardSubscription godoc
+// @Summary Get a specific card subscription
+// @Description Get a specific card subscription by ID
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Param id path int true "Subscription ID"
+// @Success 200
+// @Failure 400
+// @Router /subscriptions/{id} [get]
 func (csc *CardSubscriptionController) GetCardSubscription(c *gin.Context) {
 	id := c.Param("id")
 	var cardSub models.CardSubscription
@@ -73,6 +93,15 @@ func (csc *CardSubscriptionController) GetCardSubscription(c *gin.Context) {
 	c.JSON(200, cardSub)
 }
 
+// CreateCardSubscription godoc
+// @Summary Create a new card subscription
+// @Description Create a new card subscription with the provided details
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Success 201
+// @Failure 400
+// @Router /subscriptions [post]
 func (csc *CardSubscriptionController) CreateCardSubscription(c *gin.Context) {
 	var cardSub models.CardSubscription
 	if err := c.BindJSON(&cardSub); err != nil {
@@ -88,6 +117,16 @@ func (csc *CardSubscriptionController) CreateCardSubscription(c *gin.Context) {
 	c.JSON(201, cardSub)
 }
 
+// UpdateCardSubscription godoc
+// @Summary Update an existing card subscription
+// @Description Update an existing card subscription with the provided details
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Param id path int true "Subscription ID"
+// @Success 200
+// @Failure 400
+// @Router /subscriptions/{id} [put]
 func (csc *CardSubscriptionController) UpdateCardSubscription(c *gin.Context) {
 	id := c.Param("id")
 	var cardSub models.CardSubscription
@@ -110,6 +149,16 @@ func (csc *CardSubscriptionController) UpdateCardSubscription(c *gin.Context) {
 	c.JSON(200, cardSub)
 }
 
+// DeleteCardSubscription godoc
+// @Summary Delete an existing card subscription
+// @Description Delete an existing card subscription by ID
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Param id path int true "Subscription ID"
+// @Success 204
+// @Failure 400
+// @Router /subscriptions/{id} [delete]
 func (csc *CardSubscriptionController) DeleteCardSubscription(c *gin.Context) {
 	id := c.Param("id")
 

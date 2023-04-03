@@ -29,6 +29,15 @@ func NewMerchantOfferController(db *gorm.DB) *MerchantOfferController {
 // 	c.JSON(200, merchantOffers)
 // }
 
+// GetAllMerchantOffers godoc
+// @Summary Get all merchant offers
+// @Description Get all merchant offers available
+// @Tags offers
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 400
+// @Router /offers [get]
 func (moc *MerchantOfferController) GetAllMerchantOffers(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
@@ -66,6 +75,16 @@ func (moc *MerchantOfferController) GetAllMerchantOffers(c *gin.Context) {
 	})
 }
 
+// GetMerchantOffer godoc
+// @Summary Get a specific merchant offer
+// @Description Get a specific merchant offer by ID
+// @Tags offers
+// @Accept json
+// @Produce json
+// @Param id path int true "Offer ID"
+// @Success 200
+// @Failure 400
+// @Router /offers/{id} [get]
 func (moc *MerchantOfferController) GetMerchantOffer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -79,6 +98,15 @@ func (moc *MerchantOfferController) GetMerchantOffer(c *gin.Context) {
 	c.JSON(200, merchantOffer)
 }
 
+// CreateMerchantOffer godoc
+// @Summary Create a new merchant offer
+// @Description Create a new merchant offer with the provided details
+// @Tags offers
+// @Accept json
+// @Produce json
+// @Success 201
+// @Failure 400
+// @Router /offers [post]
 func (moc *MerchantOfferController) CreateMerchantOffer(c *gin.Context) {
 	var merchantOffer models.MerchantOffer
 	if err := c.BindJSON(&merchantOffer); err != nil {
@@ -93,6 +121,16 @@ func (moc *MerchantOfferController) CreateMerchantOffer(c *gin.Context) {
 	c.JSON(201, merchantOffer)
 }
 
+// UpdateMerchantOffer godoc
+// @Summary Update an existing merchant offer
+// @Description Update an existing merchant offer with the provided details
+// @Tags offers
+// @Accept json
+// @Produce json
+// @Param id path int true "Offer ID"
+// @Success 200
+// @Failure 400
+// @Router /offers/{id} [put]
 func (moc *MerchantOfferController) UpdateMerchantOffer(c *gin.Context) {
 	id := c.Param("id")
 
@@ -116,6 +154,16 @@ func (moc *MerchantOfferController) UpdateMerchantOffer(c *gin.Context) {
 	c.JSON(200, merchantOffer)
 }
 
+// DeleteMerchantOffer godoc
+// @Summary Delete an existing merchant offer
+// @Description Delete an existing merchant offer by ID
+// @Tags offers
+// @Accept json
+// @Produce json
+// @Param id path int true "Offer ID"
+// @Success 204
+// @Failure 400
+// @Router /offers/{id} [delete]
 func (moc *MerchantOfferController) DeleteMerchantOffer(c *gin.Context) {
 	id := c.Param("id")
 

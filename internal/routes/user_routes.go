@@ -12,7 +12,7 @@ func AllRoutes(route *gin.RouterGroup) {
 	offerController := controllers.NewMerchantOfferController(database.Db)
 	cardController := controllers.NewCardSubscriptionController(database.Db)
 	transactionController := controllers.NewTransactionController(database.Db)
-	// User resource
+
 	route.GET("/users", userController.GetAllUsers)
 	route.GET("/users/:id", userController.GetUser)
 	route.POST("/users", userController.CreateUser)
