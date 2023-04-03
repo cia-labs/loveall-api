@@ -1,0 +1,32 @@
+# Role-based access control policy
+# ---------------------------------
+
+# Allow users to view their own profile
+p, user, /api/users/:id, GET
+
+# Allow merchants to create offers
+p, merchant, /api/offers, POST
+
+# Allow merchants to view their own offers
+p, merchant, /api/merchants/:id/offers, GET
+
+# Allow users to subscribe to a card
+p, user, /api/cards/:id/subscribe, POST
+
+# Allow merchants and users to generate transactions
+p, merchant, /api/transactions, POST
+p, user, /api/transactions, POST
+
+# Allow admins to perform all actions
+p, admin, /api/* ,*
+
+# Role inheritance
+# ----------------
+
+# Merchants are also users
+g, merchant, user
+
+# Admins have all roles
+g, admin, merchant
+g, admin, user
+
