@@ -18,6 +18,7 @@ func AllRoutes(route *gin.RouterGroup) {
 	// MerchantInfo
 	merchantController := controllers.NewMerchantController(database.Db)
 	route.GET("/merchants", merchantController.GetAllMerchants)
+	route.GET("/getMerchantsForUser/:id", merchantController.GetMerchantsForUser)
 	route.GET("/merchants/:id", merchantController.GetMerchant)
 	route.POST("/merchants", merchantController.CreateMerchant)
 	route.PUT("/merchants/:id", merchantController.UpdateMerchant)

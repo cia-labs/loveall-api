@@ -94,6 +94,7 @@ func (mc *MerchantController) GetMerchant(c *gin.Context) {
 
 	var merchant models.MerchantInfo
 	err = mc.db.Preload("User").First(&merchant, id).Error
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Merchant not found"})
@@ -124,7 +125,7 @@ func (mc *MerchantController) GetMerchantsForUser(c *gin.Context) {
 	}
 
 	var merchant []models.MerchantInfo
-	err = mc.db.Preload("User").Find(&merchant, "UserId = ?", id).Error // find product with code D42
+	err = mc.db.Preload("User").Where("user_id = ?", id).Find(&merchant).Error // find product with code D42
 	// err = mc.db.Preload("User").First(&merchant, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
