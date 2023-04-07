@@ -7,12 +7,8 @@ import (
 )
 
 func AllRoutes(route *gin.RouterGroup) {
-	userController := controllers.NewUserController(database.Db)
-	merchantController := controllers.NewMerchantController(database.Db)
-	offerController := controllers.NewMerchantOfferController(database.Db)
-	cardController := controllers.NewCardSubscriptionController(database.Db)
-	transactionController := controllers.NewTransactionController(database.Db)
 
+	userController := controllers.NewUserController(database.Db)
 	route.GET("/users", userController.GetAllUsers)
 	route.GET("/users/:id", userController.GetUser)
 	route.POST("/users", userController.CreateUser)
@@ -20,6 +16,7 @@ func AllRoutes(route *gin.RouterGroup) {
 	route.DELETE("/users/:id", userController.DeleteUser)
 
 	// MerchantInfo
+	merchantController := controllers.NewMerchantController(database.Db)
 	route.GET("/merchants", merchantController.GetAllMerchants)
 	route.GET("/merchants/:id", merchantController.GetMerchant)
 	route.POST("/merchants", merchantController.CreateMerchant)
@@ -27,6 +24,7 @@ func AllRoutes(route *gin.RouterGroup) {
 	route.DELETE("/merchants/:id", merchantController.DeleteMerchant)
 
 	// Merchant Offer
+	offerController := controllers.NewMerchantOfferController(database.Db)
 	route.GET("/offers", offerController.GetAllMerchantOffers)
 	route.GET("/offers/:id", offerController.GetMerchantOffer)
 	route.POST("/offers", offerController.CreateMerchantOffer)
@@ -34,6 +32,7 @@ func AllRoutes(route *gin.RouterGroup) {
 	route.DELETE("/offers/:id", offerController.DeleteMerchantOffer)
 
 	// Card Offer
+	cardController := controllers.NewCardSubscriptionController(database.Db)
 	route.GET("/subscriptions", cardController.GetAllCardSubscriptions)
 	route.GET("/subscriptions/:id", cardController.GetCardSubscription)
 	route.POST("/subscriptions", cardController.CreateCardSubscription)
@@ -41,6 +40,7 @@ func AllRoutes(route *gin.RouterGroup) {
 	route.DELETE("/subscriptions/:id", cardController.DeleteCardSubscription)
 
 	// Transaction
+	transactionController := controllers.NewTransactionController(database.Db)
 	route.GET("/transactions", transactionController.GetAllTransaction)
 	route.GET("/transactions/:id", transactionController.GetTransaction)
 	route.POST("/transactions", transactionController.CreateTransaction)

@@ -50,10 +50,11 @@ type MerchantOffer struct {
 // user will by subscription
 type CardSubscription struct {
 	gorm.Model
-	ID     uint   `gorm:"primary_key" json:"id"`
-	Number string `gorm:"size:255;not null" json:"number"`
-	UserId uint   `gorm:"not null" json:"user_id"`
-	User   User   `gorm:"foreignKey:UserId"`
+	ID       uint   `gorm:"primary_key" json:"id"`
+	CardName string `gorm:"size:255;not null" json:"card_name"`
+	Number   string `gorm:"size:255;not null" json:"number"`
+	UserId   uint   `gorm:"not null" json:"user_id"`
+	User     User   `gorm:"foreignKey:UserId"`
 }
 
 // merchant and user will generate transactions

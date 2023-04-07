@@ -49,14 +49,14 @@ func (csc *CardSubscriptionController) GetAllCardSubscriptions(c *gin.Context) {
 	}
 
 	var totalCount int64
-	if err := csc.db.Model(&models.CardSubscription{}).Count(&totalCount).Error; err != nil {
+	if err := csc.db.Preload("User").Model(&models.CardSubscription{}).Count(&totalCount).Error; err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
 	var cardSubs []models.CardSubscription
 	offset := (page - 1) * limit
-	if err := csc.db.Offset(offset).Limit(limit).Find(&cardSubs).Error; err != nil {
+	if err := csc.db.Preload("User").Offset(offset).Limit(limit).Find(&cardSubs).Error; err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
 		return
 	}

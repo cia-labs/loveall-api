@@ -106,6 +106,40 @@ func (mc *MerchantController) GetMerchant(c *gin.Context) {
 	c.JSON(http.StatusOK, merchant)
 }
 
+// GetMerchantsForUser returns all the merchant by userID
+// @Summary Get merchants by userID
+// @Description Returns merchants by userID
+// @Tags Merchants
+// @Param id path int true "User ID"
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.MerchantInfo
+// @Router /merchantsbyuser/{id} [get]
+func (mc *MerchantController) GetMerchantsForUser(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
+		return
+	}
+
+	var merchant []models.MerchantInfo
+	err = mc.db.Preload("User").Find(&merchant, "UserId = ?", id).Error // find product with code D42
+	// err = mc.db.Preload("User").First(&merchant, id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Merchant not found"})
+		} else {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": merchant,
+	})
+}
+
 // CreateMerchant godoc
 // @Summary Create a new merchant
 // @Description Create a new merchant with the provided details
