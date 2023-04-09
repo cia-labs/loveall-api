@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"math"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	"github.com/madeinatria/love-all-backend/internal/database"
 	"github.com/madeinatria/love-all-backend/internal/models"
 )
 
@@ -115,6 +117,52 @@ func (csc *CardSubscriptionController) CreateCardSubscription(c *gin.Context) {
 		return
 	}
 	c.JSON(201, cardSub)
+}
+
+// ValidateCardSubscription godoc
+// @Summary validate the subscription and return the matching offer
+// @Description validate the subscription and return the matching offer
+// @Tags validate
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 400
+// @Router /subscriptions/validate [post]
+func (csc *CardSubscriptionController) ValidateCardSubscription(c *gin.Context) {
+	var cardValidate models.ValidateRequest
+	if err := c.BindJSON(&cardValidate); err != nil {
+		c.AbortWithStatusJSON(400, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	var cardSubscription models.CardSubscription
+	cardErr := database.Db.Where("id = ?", cardValidate.CardId).First(&cardSubscription)
+	if cardErr.Error != nil {
+		c.AbortWithStatusJSON(404, gin.H{"error": "Card subscription not found"})
+		return
+	}
+	// Check if the merchant has any avaiable or valid card discount for this user.
+	var merchantInfo models.MerchantInfo
+	merchErr := database.Db.Where("id = ?", cardValidate.MerchantId).First(&merchantInfo)
+	if merchErr.Error != nil {
+		c.AbortWithStatusJSON(404, gin.H{"error": "merchant not found"})
+		return
+	}
+
+	var matchingOffer models.MerchantOffer
+	offerErr := database.Db.Where("merchant_info_id = ? AND card_name = ?",
+		cardValidate.MerchantId,
+		cardSubscription.CardName).Find(&matchingOffer)
+	if offerErr.Error != nil {
+		c.AbortWithStatusJSON(404, gin.H{"error": "no valid offer found for the merchant"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"card":  cardSubscription,
+		"offer": matchingOffer,
+	})
+
 }
 
 // UpdateCardSubscription godoc

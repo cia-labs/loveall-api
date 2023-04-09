@@ -60,9 +60,9 @@ type CardSubscription struct {
 // merchant and user will generate transactions
 type Transaction struct {
 	gorm.Model
-	ID                 uint             `gorm:"primary_key" json:"id"`
-	UserId             uint             `gorm:"not null" json:"user_id"`
-	User               User             `gorm:"foreignKey:UserId"`
+	ID uint `gorm:"primary_key" json:"id"`
+	// UserId             uint             `gorm:"not null" json:"user_id"`
+	// User               User             `gorm:"foreignKey:UserId"`
 	CardSubscription   CardSubscription `gorm:"foreignKey:CardSubscriptionID"`
 	CardSubscriptionID uint             `gorm:"not null" json:"card_subscription_id"`
 	MerchantOffer      MerchantOffer    `gorm:"foreignKey:MerchantOfferID"`
@@ -70,4 +70,9 @@ type Transaction struct {
 	Amount             float64          `gorm:"not null" json:"amount"`
 	CreatedAt          time.Time        `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt          time.Time        `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+}
+
+type ValidateRequest struct {
+	MerchantId uint `json:"merhcant_id"`
+	CardId     uint `json:"card_id"`
 }

@@ -36,7 +36,10 @@ func AllRoutes(route *gin.RouterGroup) {
 	cardController := controllers.NewCardSubscriptionController(database.Db)
 	route.GET("/subscriptions", cardController.GetAllCardSubscriptions)
 	route.GET("/subscriptions/:id", cardController.GetCardSubscription)
+
 	route.POST("/subscriptions", cardController.CreateCardSubscription)
+	route.POST("/subscriptions/validate", cardController.ValidateCardSubscription)
+
 	route.PUT("/subscriptions/:id", cardController.UpdateCardSubscription)
 	route.DELETE("/subscriptions/:id", cardController.DeleteCardSubscription)
 
