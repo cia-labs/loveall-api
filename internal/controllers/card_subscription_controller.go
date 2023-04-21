@@ -136,7 +136,7 @@ func (csc *CardSubscriptionController) ValidateCardSubscription(c *gin.Context) 
 	}
 
 	var cardSubscription models.CardSubscription
-	cardErr := database.Db.Where("id = ?", cardValidate.CardId).First(&cardSubscription)
+	cardErr := database.Db.Preload("User").Where("id = ?", cardValidate.CardId).First(&cardSubscription)
 	if cardErr.Error != nil {
 		c.AbortWithStatusJSON(404, gin.H{"error": "Card subscription not found"})
 		return
@@ -150,7 +150,7 @@ func (csc *CardSubscriptionController) ValidateCardSubscription(c *gin.Context) 
 	}
 
 	var matchingOffer models.MerchantOffer
-	offerErr := database.Db.Where("merchant_info_id = ? AND card_name = ?",
+	offerErr := database.Db.Preload("MerchantInfo").Where("merchant_info_id = ? AND card_name = ?",
 		cardValidate.MerchantId,
 		cardSubscription.CardName).Find(&matchingOffer)
 	if offerErr.Error != nil {
