@@ -73,6 +73,6 @@ type Transaction struct {
 }
 
 type ValidateRequest struct {
-	MerchantId uint `json:"merhcant_id"`
+	MerchantId uint `json:"merchant_id"`
 	CardId     uint `json:"card_id"`
 }
