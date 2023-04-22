@@ -144,13 +144,14 @@ func (csc *CardSubscriptionController) ValidateCardSubscription(c *gin.Context) 
 	// Check if the merchant has any avaiable or valid card discount for this user.
 	var merchantInfo models.MerchantInfo
 	merchErr := database.Db.Where("id = ?", cardValidate.MerchantId).First(&merchantInfo)
+
 	if merchErr.Error != nil {
 		c.AbortWithStatusJSON(404, gin.H{"error": "merchant not found"})
 		return
 	}
 
 	var matchingOffer models.MerchantOffer
-	offerErr := database.Db.Preload("MerchantInfo").Where("merchant_info_id = ? AND card_name = ?",
+	offerErr := database.Db.Preload("MerchantInfo.User").Where("merchant_info_id = ? AND card_name = ?",
 		cardValidate.MerchantId,
 		cardSubscription.CardName).Find(&matchingOffer)
 	if offerErr.Error != nil {
