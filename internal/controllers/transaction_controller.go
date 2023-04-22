@@ -56,7 +56,7 @@ func (tc *TransactionController) GetAllTransaction(c *gin.Context) {
 
 	var transactions []models.Transaction
 	offset := (page - 1) * limit
-	if err := tc.DB.Preload("User").Preload("CardSubscription.User").Preload("MerchantOffer.MerchantInfo.User").Offset(offset).Limit(limit).Find(&transactions).Error; err != nil {
+	if err := tc.DB.Preload("CardSubscription.User").Preload("MerchantOffer.MerchantInfo.User").Offset(offset).Limit(limit).Find(&transactions).Error; err != nil {
 		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
 		return
 	}
@@ -66,7 +66,7 @@ func (tc *TransactionController) GetAllTransaction(c *gin.Context) {
 		"meta": gin.H{
 			"page":       page,
 			"limit":      limit,
-			"totalPages": int(math.Ceil(float64(totalCount) / float64(limit))),
+			"totalPages": int(math.Ceil(float64(totalCount) / float64(limit))), 
 			"totalCount": totalCount,
 		},
 	})

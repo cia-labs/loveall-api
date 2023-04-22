@@ -15,7 +15,7 @@ import (
 func StartApp() {
 	router := initializeGin()
 	SetUpRoutes(router)
-	router.Run(fmt.Sprintf(":%s", "8081"))
+	router.Run(fmt.Sprintf(":%s", "8001"))
 }
 
 func SetUpRoutes(router *gin.Engine) {
