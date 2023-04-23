@@ -29,8 +29,8 @@ func New(cfg *config.Config, logger *zap.Logger) *Service {
 func (s *Service) Run() error {
 	router := initializeGin()
 	SetUpRoutes(router)
-	router.Run(fmt.Sprintf(":%s", "8001"))
-	return
+	router.Run(fmt.Sprintf(":%s", s.cfg.ServerPort))
+	return nil
 }
 
 func SetUpRoutes(router *gin.Engine) {
