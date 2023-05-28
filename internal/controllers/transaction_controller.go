@@ -68,9 +68,9 @@ func (tc *TransactionController) GetTransaction(c *gin.Context) {
 	}
 
 	var transaction models.Transaction
-	err = tc.DB.Preload("User").Preload("CardSubscription.User").Preload("MerchantOffer.MerchantInfo.User").First(&transaction, id).Error
+	err = tc.DB.Preload("CardSubscription.User").Preload("MerchantOffer.MerchantInfo.User").First(&transaction, id).Error
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Transaction not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Transaction not found", "err": err.Error()})
 		return
 	}
 
