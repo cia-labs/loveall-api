@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"math"
 	"net/http"
 	"strconv"
 
@@ -10,6 +9,7 @@ import (
 
 	"github.com/madeinatria/love-all-backend/internal/database"
 	"github.com/madeinatria/love-all-backend/internal/models"
+	"github.com/madeinatria/love-all-backend/internal/utils"
 )
 
 type CardSubscriptionController struct {
@@ -17,97 +17,66 @@ type CardSubscriptionController struct {
 }
 
 func NewCardSubscriptionController(db *gorm.DB) *CardSubscriptionController {
-	return &CardSubscriptionController{db}
+	return &CardSubscriptionController{
+		db: db}
 }
 
-//	func (csc *CardSubscriptionController) GetAllCardSubscriptions(c *gin.Context) {
-//		var cardSubs []models.CardSubscription
-//		err := csc.db.Find(&cardSubs).Error
-//		if err != nil {
-//			c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
-//			return
-//		}
-//		c.JSON(200, cardSubs)
-//	}
-
-// GetAllCardSubscriptions godoc
-// @Summary Get all card subscriptions
-// @Description Get all card subscriptions available
-// @Tags subscriptions
-// @Accept json
-// @Produce json
-// @Success 200
-// @Failure 400
-// @Router /subscriptions [get]
 func (csc *CardSubscriptionController) GetAllCardSubscriptions(c *gin.Context) {
-	page, err := strconv.Atoi(c.Query("page"))
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
-		page = 1
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page"})
+		return
 	}
 
-	limit, err := strconv.Atoi(c.Query("limit"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	if err != nil {
-		limit = 10
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+		return
 	}
 
 	var totalCount int64
 	if err := csc.db.Preload("User").Model(&models.CardSubscription{}).Count(&totalCount).Error; err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	var cardSubs []models.CardSubscription
 	offset := (page - 1) * limit
 	if err := csc.db.Preload("User").Offset(offset).Limit(limit).Find(&cardSubs).Error; err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	cardSubResponses := make([]models.CardSubscriptionResponse, len(cardSubs))
+	for i, cardSub := range cardSubs {
+		cardSubResponses[i] = cardSub.ToCardSubscriptionResponse()
+	}
+
 	c.JSON(200, gin.H{
-		"data": cardSubs,
+		"data": cardSubResponses,
 		"meta": gin.H{
 			"page":       page,
 			"limit":      limit,
-			"totalPages": int(math.Ceil(float64(totalCount) / float64(limit))),
+			"totalPages": utils.CalculateTotalPages(totalCount, int64(limit)),
 			"totalCount": totalCount,
 		},
 	})
 }
 
-// GetCardSubscription godoc
-// @Summary Get a specific card subscription
-// @Description Get a specific card subscription by ID
-// @Tags subscriptions
-// @Accept json
-// @Produce json
-// @Param id path int true "Subscription ID"
-// @Success 200
-// @Failure 400
-// @Router /subscriptions/{id} [get]
 func (csc *CardSubscriptionController) GetCardSubscription(c *gin.Context) {
 	id := c.Param("id")
 	var cardSub models.CardSubscription
 	err := csc.db.Preload("User").First(&cardSub, id).Error
 	if err != nil {
-		c.AbortWithStatusJSON(404, gin.H{"error": "Card subscription not found"})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Card subscription not found"})
 		return
 	}
-	c.JSON(200, cardSub)
+	c.JSON(http.StatusOK, cardSub.ToCardSubscriptionResponse())
 }
 
-// CreateCardSubscription godoc
-// @Summary Create a new card subscription
-// @Description Create a new card subscription with the provided details
-// @Tags subscriptions
-// @Accept json
-// @Produce json
-// @Success 201
-// @Failure 400
-// @Router /subscriptions [post]
 func (csc *CardSubscriptionController) CreateCardSubscription(c *gin.Context) {
 	var cardSub models.CardSubscription
 	if err := c.BindJSON(&cardSub); err != nil {
-		// c.AbortWithStatusJSON(400, gin.H{"error": "Invalid request body"})
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -116,18 +85,9 @@ func (csc *CardSubscriptionController) CreateCardSubscription(c *gin.Context) {
 		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(201, cardSub)
+	c.JSON(201, cardSub.ToCardSubscriptionResponse())
 }
 
-// ValidateCardSubscription godoc
-// @Summary validate the subscription and return the matching offer
-// @Description validate the subscription and return the matching offer
-// @Tags validate
-// @Accept json
-// @Produce json
-// @Success 200
-// @Failure 400
-// @Router /subscriptions/validate [post]
 func (csc *CardSubscriptionController) ValidateCardSubscription(c *gin.Context) {
 	var cardValidate models.ValidateRequest
 	if err := c.BindJSON(&cardValidate); err != nil {
@@ -166,16 +126,6 @@ func (csc *CardSubscriptionController) ValidateCardSubscription(c *gin.Context) 
 
 }
 
-// UpdateCardSubscription godoc
-// @Summary Update an existing card subscription
-// @Description Update an existing card subscription with the provided details
-// @Tags subscriptions
-// @Accept json
-// @Produce json
-// @Param id path int true "Subscription ID"
-// @Success 200
-// @Failure 400
-// @Router /subscriptions/{id} [put]
 func (csc *CardSubscriptionController) UpdateCardSubscription(c *gin.Context) {
 	id := c.Param("id")
 	var cardSub models.CardSubscription
@@ -195,19 +145,9 @@ func (csc *CardSubscriptionController) UpdateCardSubscription(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, cardSub)
+	c.JSON(200, cardSub.ToCardSubscriptionResponse())
 }
 
-// DeleteCardSubscription godoc
-// @Summary Delete an existing card subscription
-// @Description Delete an existing card subscription by ID
-// @Tags subscriptions
-// @Accept json
-// @Produce json
-// @Param id path int true "Subscription ID"
-// @Success 204
-// @Failure 400
-// @Router /subscriptions/{id} [delete]
 func (csc *CardSubscriptionController) DeleteCardSubscription(c *gin.Context) {
 	id := c.Param("id")
 
