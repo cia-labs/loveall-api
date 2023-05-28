@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"math"
 	"net/http"
 	"strconv"
 
@@ -10,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/madeinatria/love-all-backend/internal/models"
+	"github.com/madeinatria/love-all-backend/internal/utils"
 )
 
 type MerchantController struct {
@@ -20,24 +20,6 @@ func NewMerchantController(db *gorm.DB) *MerchantController {
 	return &MerchantController{db}
 }
 
-// func (mc *MerchantController) GetAllMerchants(c *gin.Context) {
-// 	var merchants []models.MerchantInfo
-// 	err := mc.db.Preload("User").Find(&merchants).Error
-// 	if err != nil {
-// 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, merchants)
-// }
-
-// GetAllMerchants returns a list of all merchants
-// @Summary Get all merchants
-// @Description Returns a list of all merchants in the system
-// @Tags Merchants
-// @Accept json
-// @Produce json
-// @Success 200 {array} models.MerchantInfo
-// @Router /merchants [get]
 func (mc *MerchantController) GetAllMerchants(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil {
@@ -63,27 +45,22 @@ func (mc *MerchantController) GetAllMerchants(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	var merchantResponses []models.MerchantInfoResponse
+	for _, merchant := range merchants {
+		merchantResponses = append(merchantResponses, merchant.ToMerchantInfoResponse())
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": merchants,
+		"data": merchantResponses,
 		"meta": gin.H{
 			"page":       page,
 			"limit":      limit,
-			"totalPages": int(math.Ceil(float64(totalCount) / float64(limit))),
+			"totalPages": utils.CalculateTotalPages(totalCount, int64(limit)),
 			"totalCount": totalCount,
 		},
 	})
 }
 
-// GetMerchant returns a single merchant by ID
-// @Summary Get merchant by ID
-// @Description Returns a single merchant by ID
-// @Tags Merchants
-// @Param id path int true "Merchant ID"
-// @Accept json
-// @Produce json
-// @Success 200 {object} models.MerchantInfo
-// @Router /merchants/{id} [get]
 func (mc *MerchantController) GetMerchant(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -104,18 +81,9 @@ func (mc *MerchantController) GetMerchant(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, merchant)
+	c.JSON(http.StatusOK, merchant.ToMerchantInfoResponse())
 }
 
-// GetMerchantsForUser returns all the merchant by userID
-// @Summary Get merchants by userID
-// @Description Returns merchants by userID
-// @Tags Merchants
-// @Param id path int true "User ID"
-// @Accept json
-// @Produce json
-// @Success 200 {object} models.MerchantInfo
-// @Router /merchantsbyuser/{id} [get]
 func (mc *MerchantController) GetMerchantsForUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -124,8 +92,8 @@ func (mc *MerchantController) GetMerchantsForUser(c *gin.Context) {
 		return
 	}
 
-	var merchant []models.MerchantInfo
-	err = mc.db.Preload("User").Where("user_id = ?", id).Find(&merchant).Error // find product with code D42
+	var merchant models.MerchantInfo
+	err = mc.db.Preload("User").Where("user_id = ?", id).First(&merchant).Error // find product with code D42
 	// err = mc.db.Preload("User").First(&merchant, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -137,20 +105,10 @@ func (mc *MerchantController) GetMerchantsForUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": merchant,
+		"data": merchant.ToMerchantInfoResponse(),
 	})
 }
 
-// CreateMerchant godoc
-// @Summary Create a new merchant
-// @Description Create a new merchant with the provided details
-// @Tags merchants
-// @Accept json
-// @Produce json
-// @Param Merchant body models.MerchantInfo true "Merchant details"
-// @Success 201
-// @Failure 400
-// @Router /merchants [post]
 func (mc *MerchantController) CreateMerchant(c *gin.Context) {
 	var merchant models.MerchantInfo
 	if err := c.BindJSON(&merchant); err != nil {
@@ -168,20 +126,9 @@ func (mc *MerchantController) CreateMerchant(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, merchant)
+	c.JSON(http.StatusCreated, merchant.ToMerchantInfoResponse())
 }
 
-// UpdateMerchant godoc
-// @Summary Update an existing merchant
-// @Description Update an existing merchant with the provided details
-// @Tags merchants
-// @Accept json
-// @Produce json
-// @Param id path int true "Merchant ID"
-// @Param Merchant body models.MerchantInfo true "Merchant details"
-// @Success 200
-// @Failure 400
-// @Router /merchants/{id} [put]
 func (mc *MerchantController) UpdateMerchant(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -216,7 +163,7 @@ func (mc *MerchantController) UpdateMerchant(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, merchant)
+	c.JSON(http.StatusOK, merchant.ToMerchantInfoResponse())
 }
 
 func (mc *MerchantController) DeleteMerchant(c *gin.Context) {
