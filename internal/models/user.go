@@ -143,6 +143,7 @@ type Transaction struct {
 	MerchantOffer      MerchantOffer    `gorm:"foreignKey:MerchantOfferID"`
 	MerchantOfferID    uint             `gorm:"not null" json:"merchant_offer_id"`
 	Amount             float64          `gorm:"not null" json:"amount"`
+	BillNumber         string           `gorm:"size:255;not null" json:"bill_number"`
 	CreatedAt          time.Time        `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt          time.Time        `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -152,6 +153,7 @@ type TransactionResponse struct {
 	CardName           string    `json:"card_name"`
 	MerchantOfferID    uint      `gorm:"not null" json:"merchant_offer_id"`
 	Amount             float64   `gorm:"not null" json:"amount"`
+	BillNumber         string    `gorm:"size:255;not null" json:"bill_number"`
 	CardSubscriptionID uint      `gorm:"not null" json:"card_subscription_id"`
 	CreatedAt          time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	CardNumber         string    `gorm:"size:255;not null" json:"card_number"`
@@ -168,6 +170,7 @@ func (t Transaction) ToTransactionResponse() TransactionResponse {
 		CardName:           t.CardSubscription.CardName,
 		MerchantOfferID:    t.MerchantOfferID,
 		Amount:             t.Amount,
+		BillNumber:         t.BillNumber,
 		CardSubscriptionID: t.CardSubscriptionID,
 		CreatedAt:          t.CreatedAt,
 		CardNumber:         t.CardSubscription.Number,
