@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/dgrijalva/jwt-go"
@@ -58,6 +59,7 @@ func Authorize() gin.HandlerFunc {
 			return []byte(secretKey), nil
 		})
 		if err != nil {
+			log.Println(err.Error())
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "Invalid authorization token",
 			})
@@ -66,9 +68,88 @@ func Authorize() gin.HandlerFunc {
 
 		// Verify that the token is valid and has not expired.
 		if !token.Valid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "Invalid authorization token",
-			})
+			if ve, ok := err.(*jwt.ValidationError); ok {
+				// Token has expired, check if a valid refresh token is provided
+				if ve.Errors&jwt.ValidationErrorExpired != 0 {
+					// Token has expired, check if a valid refresh token is provided
+					refreshTokenString := c.GetHeader("Refresh-Token")
+					if refreshTokenString == "" {
+						c.JSON(http.StatusUnauthorized, gin.H{"error": "Refresh token is required"})
+						c.Abort()
+						return
+					}
+
+					// Parse refresh token
+					refreshToken, err := jwt.Parse(refreshTokenString, func(token *jwt.Token) (interface{}, error) {
+						// TODO : fix this
+						return token, nil
+						// return jwtSecret, nil
+					})
+
+					if err != nil || !refreshToken.Valid {
+						c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+						c.Abort()
+						return
+					}
+
+					// Generate new JWT token
+					userID, ok := token.Claims.(jwt.MapClaims)["user_id"].(float64)
+					if !ok {
+						c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+						return
+					}
+
+					userEmail, ok := token.Claims.(jwt.MapClaims)["user_email"].(string)
+					if !ok {
+						c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+						return
+					}
+
+					userRole, ok := token.Claims.(jwt.MapClaims)["user_role"].(string)
+					if !ok {
+						c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+						return
+					}
+
+					newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+						"user_id":    userID,
+						"user_email": userEmail,
+						"user_role":  userRole,
+						"exp":        time.Now().Add(time.Hour * 24).Unix(), // Expires in 24 hours.
+					})
+					// Replace "your-secret-key" with your actual secret key.
+					tokenString, err := newToken.SignedString([]byte("your-secret-key"))
+					if err != nil {
+						c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+							"error": "Internal server error",
+						})
+						return
+					}
+					if err != nil {
+						c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+						c.Abort()
+						return
+					}
+
+					c.Set("user_id", userID)
+					c.Set("user_email", userEmail)
+					c.Set("user_role", userRole)
+
+					// Return the new token
+					c.Header("Authorization", tokenString)
+					c.Next()
+				} else {
+					c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+					c.Abort()
+					return
+				}
+				///
+
+			} else {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+				c.Abort()
+				return
+			}
 			return
 		}
 
