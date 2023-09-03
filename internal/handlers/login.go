@@ -133,6 +133,7 @@ func LoginHandler(c *gin.Context) {
 
 	// Compare the password hash with the given password.
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		log.Println("DEBUG: Compare Hash error:", err.Error())
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "Invalid email or password",
 		})
@@ -187,7 +188,8 @@ func LoginHandler(c *gin.Context) {
 func GenerateTokenPair(user models.User) (string, string, error) {
 	jwtSecret := []byte("your-secret-key")
 	// Create access token with a short expiration time
-	expirationTime := time.Now().Add(24 * time.Hour)
+	// expirationTime := time.Now().Add(24 * time.Hour)
+	expirationTime := time.Now().Add(5 * time.Minute)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":    user.ID,
 		"user_email": user.Email,
@@ -202,7 +204,8 @@ func GenerateTokenPair(user models.User) (string, string, error) {
 	}
 
 	// Create refresh token with a longer expiration time
-	refreshExpirationTime := time.Now().Add(7 * 24 * time.Hour)
+	// refreshExpirationTime := time.Now().Add(7 * 24 * time.Hour)
+	refreshExpirationTime := time.Now().Add(6 * time.Minute)
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":    user.ID,
 		"user_email": user.Email,

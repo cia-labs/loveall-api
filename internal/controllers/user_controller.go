@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -66,6 +67,7 @@ func (uc *UserController) GetUser(c *gin.Context) {
 	var user models.User
 	if err := uc.db.First(&user, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		log.Println("DEBUG: Compare Hash error:", err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, user.ToResponse())
@@ -74,39 +76,47 @@ func (uc *UserController) GetUser(c *gin.Context) {
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
+		log.Println("Debug: Create user req body error=", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
+		log.Println("DEBUG: Error hashing password:", err.Error())
 		return
 	}
 
+	// Convert the hashedPassword to string
 	user.Password = string(hashedPassword)
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
+	log.Println("INFO: Creating user!")
+	if err := uc.db.Create(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusCreated, user.ToResponse())
 }
 
 func (uc *UserController) UpdateUser(c *gin.Context) {
 	id := c.Param("id")
+	log.Println("DEBUG: inside:")
 	var user models.User
 	if err := uc.db.First(&user, id).Error; err != nil {
+		log.Println("DEBUG: Compare Hash error:", err.Error())
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
 	if err := c.ShouldBindJSON(&user); err != nil {
+		log.Println("DEBUG: Compare Hash error:", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
 	if err := uc.db.Save(&user).Error; err != nil {
+		log.Println("DEBUG: Compare Hash error:", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -41,6 +41,7 @@ func (u *User) ToResponse() UserResponse {
 		Email:     u.Email,
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
+		Role:      u.Role,
 	}
 }
 

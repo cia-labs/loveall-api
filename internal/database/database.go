@@ -22,5 +22,5 @@ func init() {
 	}
 
 	// Automigrate database tables
-	Db.AutoMigrate(&models.User{}, &models.CardSubscription{}, &models.MerchantOffer{}, &models.Transaction{})
+	Db.AutoMigrate(&models.User{}, &models.CardSubscription{}, &models.MerchantOffer{}, &models.Transaction{}, &models.MerchantInfo{})
 }
