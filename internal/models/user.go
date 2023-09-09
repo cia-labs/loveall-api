@@ -110,7 +110,7 @@ type CardSubscription struct {
 	gorm.Model
 	ID       uint   `gorm:"primary_key" json:"id"`
 	CardName string `gorm:"size:255;not null" json:"card_name"`
-	Number   string `gorm:"size:255;not null" json:"number"`
+	Number   int64  `gorm:"size:255;not null" json:"number"`
 	UserId   uint   `gorm:"not null" json:"user_id"`
 	User     User   `gorm:"foreignKey:UserId"`
 }
@@ -118,7 +118,7 @@ type CardSubscription struct {
 type CardSubscriptionResponse struct {
 	ID       uint   `gorm:"primary_key" json:"id"`
 	CardName string `gorm:"size:255;not null" json:"card_name"`
-	Number   string `gorm:"size:255;not null" json:"number"`
+	Number   int64  `gorm:"size:255;not null" json:"number"`
 	UserId   uint   `gorm:"not null" json:"user_id"`
 	UserName string `gorm:"size:255;not null" json:"user_name"`
 }
@@ -157,7 +157,7 @@ type TransactionResponse struct {
 	BillNumber         string    `gorm:"size:255;not null" json:"bill_number"`
 	CardSubscriptionID uint      `gorm:"not null" json:"card_subscription_id"`
 	CreatedAt          time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	CardNumber         string    `gorm:"size:255;not null" json:"card_number"`
+	CardNumber         int64     `gorm:"size:255;not null" json:"card_number"`
 	UserID             uint      `gorm:"not null" json:"user_id"`
 	UserName           string    `gorm:"size:255;not null" json:"user_name"`
 	MerchantName       string    `gorm:"size:255;not null" json:"merchant_name"`
