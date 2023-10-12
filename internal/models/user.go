@@ -88,11 +88,10 @@ type MerchantOffer struct {
 }
 
 type MerchantOfferResponse struct {
-	ID             uint   `gorm:"primaryKey"`
-	CardName       Card   `gorm:"not null" json:"card_name"`
-	DiscountRate   uint   `gorm:"not null" json:"discount_rate"`
-	MerchantInfoID uint   `gorm:"not null" json:"merchant_info_id"`
-	MerchantName   string `gorm:"size:255;not null" json:"merchant_name"`
+	ID             uint `gorm:"primaryKey"`
+	CardName       Card `gorm:"not null" json:"card_name"`
+	DiscountRate   uint `gorm:"not null" json:"discount_rate"`
+	MerchantInfoID uint `gorm:"not null" json:"merchant_info_id"`
 }
 
 func (mo *MerchantOffer) ToMerchantOfferResponse() MerchantOfferResponse {
@@ -101,7 +100,6 @@ func (mo *MerchantOffer) ToMerchantOfferResponse() MerchantOfferResponse {
 		CardName:       mo.CardName,
 		DiscountRate:   mo.DiscountRate,
 		MerchantInfoID: mo.MerchantInfoID,
-		MerchantName:   mo.MerchantInfo.MerchantName,
 	}
 }
 
